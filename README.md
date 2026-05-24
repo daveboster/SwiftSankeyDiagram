@@ -44,6 +44,18 @@ Open `Examples/CashflowSankeyExample.playground` in Xcode. It mirrors app-owned 
 
 The important boundary is that the package does not know about cashflow, expenses, categories, or any app storage. Those stay in the app. The package only renders nodes and links.
 
+## Getting Started With Xcode
+
+See [Getting Started With Xcode](docs/GETTING_STARTED_XCODE.md) for step-by-step
+instructions to add the package to an Xcode app, import the product, and render
+a first diagram.
+
+## Implementing With Codex
+
+See [Codex Xcode Integration Prompt](docs/CODEX_XCODE_INTEGRATION_PROMPT.md)
+for a reusable prompt that asks Codex to add `SwiftSankeyDiagram` to an existing
+Xcode project and map app-owned data into Sankey nodes and links.
+
 ## Exporting
 
 The diagram is a SwiftUI view, so apps can render it with platform APIs such as `ImageRenderer` when exporting to PNG/PDF/Rich Text workflows.

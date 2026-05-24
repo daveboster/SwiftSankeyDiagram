@@ -42,6 +42,13 @@ The cashflow playground example mirrors host-owned cashflow data to demonstrate
 the adapter boundary. It is intentionally example code, not package domain
 logic.
 
+## Onboarding Docs
+
+- [Getting Started With Xcode](GETTING_STARTED_XCODE.md) covers package
+  installation and a first SwiftUI diagram.
+- [Codex Xcode Integration Prompt](CODEX_XCODE_INTEGRATION_PROMPT.md) provides
+  a reusable Codex prompt for adding this package to an existing Xcode project.
+
 ## Validation
 
 Use these checks when changing the package boundary:
