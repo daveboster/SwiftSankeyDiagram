@@ -13,6 +13,12 @@ Your app owns its source models and maps them into nodes and links. The included
 
 ## Usage
 
+Use Swift Package Manager:
+
+```swift
+.package(url: "https://github.com/daveboster/SwiftSankeyDiagram.git", from: "0.1.0")
+```
+
 ```swift
 import SwiftSankeyDiagram
 import SwiftUI
@@ -41,3 +47,39 @@ The important boundary is that the package does not know about cashflow, expense
 ## Exporting
 
 The diagram is a SwiftUI view, so apps can render it with platform APIs such as `ImageRenderer` when exporting to PNG/PDF/Rich Text workflows.
+
+## Validation
+
+```bash
+swift test
+swift build
+```
+
+See [docs/SWIFT_SANKEY_DIAGRAM.md](docs/SWIFT_SANKEY_DIAGRAM.md) for package boundary guidance.
+
+## Versioning
+
+`SwiftSankeyDiagram` uses semantic versioning. While the package is below 1.0,
+minor releases may include source-breaking API changes as the public diagram
+surface stabilizes. Patch releases should remain source-compatible within the
+same minor version. See [CONTRIBUTING.md](CONTRIBUTING.md) for the pre-1.0
+patch-versus-minor tagging policy.
+
+## Contributing
+
+Issues and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md)
+before broad API, layout, or adapter changes so the package boundary can stay
+useful across host apps.
+
+See [CHANGELOG.md](CHANGELOG.md) for release notes.
+
+## License
+
+`SwiftSankeyDiagram` is available under the MIT License. See [LICENSE](LICENSE).
+
+## Credit
+
+The initial ribbon drawing approach was informed by J.C. Builds' Medium article
+["Easily Add a Clean SwiftUI Sankey Diagram to Your App"](https://medium.com/@jc_builds/easily-add-a-clean-swiftui-sankey-diagram-to-your-app-c4972b55d0c1),
+especially the idea of avoiding rounded stroke caps so flow edges meet vertical
+node bars cleanly.
