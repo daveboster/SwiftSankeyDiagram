@@ -111,12 +111,18 @@ commands. For the package itself, use:
 ```bash
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift test
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift build
+bash scripts/check-swift-playgrounds-scenarios.sh
+bash scripts/check-swift-playgrounds-scenarios.sh --local-package
 ```
 
 ## Troubleshooting
 
 - If `import SwiftSankeyDiagram` fails, confirm the package product is added to
   the target that contains the importing file.
+- If a cashflow example fails with `No such module 'SwiftSankeyDiagram'`, open
+  one of the `.swiftpm` app playgrounds under `Examples/` rather than a
+  standalone `.playground` bundle. Each app playground's `Package.swift`
+  declares the public GitHub package dependency that Swift Playgrounds needs.
 - If the diagram is blank, confirm every link has a positive `value` and that
   every `source` and `target` matches an existing node ID.
 - If labels are clipped, give the diagram more width or adjust

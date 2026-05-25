@@ -1,8 +1,10 @@
 import SwiftSankeyDiagram
 import SwiftUI
 
-public struct CashflowSankeyExampleView: View {
+struct CashflowSankeyExampleView: View {
     @State private var selectedNodeID: String?
+    @State private var incomeView: ExampleIncomeView
+    private let title: String
 
     private let cashflow = ExampleCashflowFixture.make()
     private var selectedExpenseKind: ExampleExpenseKind? {
@@ -10,15 +12,49 @@ public struct CashflowSankeyExampleView: View {
     }
 
     private var diagram: ExampleSankeyDiagram {
-        ExampleCashflowSankeyMapper.diagram(for: cashflow, drilldown: selectedExpenseKind)
+        ExampleCashflowSankeyMapper.diagram(
+            for: cashflow,
+            showsIncomeSources: incomeView == .expanded,
+            drilldown: selectedExpenseKind
+        )
     }
 
-    public init() {}
+    private var diagramSelection: Binding<String?> {
+        Binding(
+            get: { selectedNodeID },
+            set: { newValue in
+                guard newValue == ExampleCashflowSankeyMapper.totalIncomeID else {
+                    selectedNodeID = newValue
+                    return
+                }
 
-    public var body: some View {
+                incomeView.toggle()
+                selectedNodeID = nil
+            }
+        )
+    }
+
+    init(
+        title: String = "Cashflow Sankey Example",
+        initialIncomeView: ExampleIncomeView = .expanded
+    ) {
+        self.title = title
+        _incomeView = State(initialValue: initialIncomeView)
+    }
+
+    var body: some View {
+        ScrollView([.horizontal, .vertical]) {
+            content
+                .padding(24)
+                .frame(width: 1_080, height: 760, alignment: .topLeading)
+        }
+        .background(Color.cashflowPageBackground)
+    }
+
+    private var content: some View {
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 6) {
-                Text("Cashflow Sankey Example")
+                Text(title)
                     .font(.largeTitle.bold())
 
                 Text("App-owned cashflow data mapped into generic Sankey nodes and links.")
@@ -29,10 +65,10 @@ public struct CashflowSankeyExampleView: View {
             SankeyDiagram(
                 nodes: diagram.nodes,
                 links: diagram.links,
-                selectedNodeID: $selectedNodeID,
-                style: .cashflowExample
+                selectedNodeID: diagramSelection,
+                style: .cashflowExample(showsIncomeSources: incomeView == .expanded)
             )
-            .frame(minWidth: 980, idealWidth: 1_180, maxWidth: .infinity, minHeight: 620, idealHeight: 720)
+            .frame(width: 1_032, height: 620)
             .background(
                 RoundedRectangle(cornerRadius: 8)
                     .fill(Color.cashflowCanvasBackground)
@@ -46,24 +82,45 @@ public struct CashflowSankeyExampleView: View {
                 Text("Drilling into \(selectedExpenseKind.displayName)")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
+            } else if incomeView == .expanded {
+                Text("Click Total Income to hide income sources, or click an expense group to show its items.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
             } else {
-                Text("Click an expense group to show its items.")
+                Text("Click Total Income to show income sources, or click an expense group to show its items.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(24)
-        .frame(minWidth: 1_080, minHeight: 760)
-        .background(Color.cashflowPageBackground)
     }
 }
 
-private struct ExampleIncomeSource {
+enum ExampleIncomeView: String, CaseIterable, Identifiable {
+    case expanded
+    case collapsed
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .expanded:
+            "Income Sources"
+        case .collapsed:
+            "Total Income"
+        }
+    }
+
+    mutating func toggle() {
+        self = self == .expanded ? .collapsed : .expanded
+    }
+}
+
+struct ExampleIncomeSource {
     let name: String
     let yearlyAmount: Double
 }
 
-private enum ExampleExpenseKind: String, CaseIterable {
+enum ExampleExpenseKind: String, CaseIterable {
     case bills
     case spending
     case periodic
@@ -96,55 +153,68 @@ private enum ExampleExpenseKind: String, CaseIterable {
     }
 }
 
-private struct ExampleExpenseItem {
+struct ExampleExpenseItem {
     let type: ExampleExpenseKind
     let category: String
     let name: String
     let yearlyAmount: Double
 }
 
-private struct ExampleCashflow {
+struct ExampleCashflow {
     let incomeSources: [ExampleIncomeSource]
     let expenseItems: [ExampleExpenseItem]
 }
 
-private struct ExampleSankeyDiagram {
+struct ExampleSankeyDiagram {
     let nodes: [SankeyNode]
     let links: [SankeyLink]
 }
 
-private enum ExampleCashflowSankeyMapper {
+enum ExampleCashflowSankeyMapper {
+    static let totalIncomeID = "total-income"
+
     static func diagram(
         for cashflow: ExampleCashflow,
+        showsIncomeSources: Bool,
         drilldown: ExampleExpenseKind? = nil
     ) -> ExampleSankeyDiagram {
-        var nodes = cashflow.incomeSources.map {
-            SankeyNode(id: incomeID($0.name), title: $0.name, layer: 0)
+        let totalIncomeLayer = showsIncomeSources ? 1 : 0
+        let expenseLayer = showsIncomeSources ? 2 : 1
+        let itemLayer = showsIncomeSources ? 3 : 2
+
+        var nodes: [SankeyNode] = []
+        if showsIncomeSources {
+            nodes.append(contentsOf: cashflow.incomeSources.map {
+                SankeyNode(id: incomeID($0.name), title: $0.name, layer: 0)
+            })
         }
-        nodes.append(SankeyNode(id: "total-income", title: "Total Income", layer: 1))
+        nodes.append(SankeyNode(id: totalIncomeID, title: "Total Income", layer: totalIncomeLayer))
 
         for kind in ExampleExpenseKind.allCases where total(kind, in: cashflow) > 0 {
-            nodes.append(SankeyNode(id: expenseKindID(kind), title: kind.displayName, layer: 2))
+            nodes.append(SankeyNode(id: expenseKindID(kind), title: kind.displayName, layer: expenseLayer))
         }
 
         let surplus = totalIncome(in: cashflow) - totalExpenses(in: cashflow)
         if surplus > 0 {
-            nodes.append(SankeyNode(id: "surplus", title: "Surplus", layer: 2))
+            nodes.append(SankeyNode(id: "surplus", title: "Surplus", layer: expenseLayer))
         }
 
         if let drilldown {
             for item in items(drilldown, in: cashflow) {
-                nodes.append(SankeyNode(id: itemID(item), title: item.name, layer: 3))
+                nodes.append(SankeyNode(id: itemID(item), title: item.name, layer: itemLayer))
             }
         }
 
-        var links = cashflow.incomeSources.map {
-            SankeyLink(
-                source: incomeID($0.name),
-                target: "total-income",
-                value: $0.yearlyAmount,
-                color: Color(red: 0.20, green: 0.62, blue: 0.50)
-            )
+        var links: [SankeyLink] = []
+        if showsIncomeSources {
+            links.append(contentsOf: cashflow.incomeSources.map {
+                SankeyLink(
+                    source: incomeID($0.name),
+                    target: totalIncomeID,
+                    value: $0.yearlyAmount,
+                    color: Color(red: 0.20, green: 0.62, blue: 0.50)
+                )
+            })
         }
 
         for kind in ExampleExpenseKind.allCases {
@@ -153,7 +223,7 @@ private enum ExampleCashflowSankeyMapper {
 
             links.append(
                 SankeyLink(
-                    source: "total-income",
+                    source: totalIncomeID,
                     target: expenseKindID(kind),
                     value: amount,
                     color: kind.color
@@ -164,7 +234,7 @@ private enum ExampleCashflowSankeyMapper {
         if surplus > 0 {
             links.append(
                 SankeyLink(
-                    source: "total-income",
+                    source: totalIncomeID,
                     target: "surplus",
                     value: surplus,
                     color: Color(red: 0.24, green: 0.39, blue: 0.88)
@@ -188,7 +258,7 @@ private enum ExampleCashflowSankeyMapper {
         return ExampleSankeyDiagram(nodes: nodes, links: links)
     }
 
-    private static func incomeID(_ name: String) -> String {
+    static func incomeID(_ name: String) -> String {
         "income.\(name)"
     }
 
@@ -227,7 +297,7 @@ private enum ExampleCashflowSankeyMapper {
     }
 }
 
-private enum ExampleCashflowFixture {
+enum ExampleCashflowFixture {
     static func make() -> ExampleCashflow {
         ExampleCashflow(
             incomeSources: [
@@ -258,8 +328,8 @@ private enum ExampleCashflowFixture {
     }
 }
 
-private extension SankeyDiagramStyle {
-    static var cashflowExample: SankeyDiagramStyle {
+extension SankeyDiagramStyle {
+    static func cashflowExample(showsIncomeSources: Bool) -> SankeyDiagramStyle {
         SankeyDiagramStyle(
             nodeWidth: 8,
             nodeCornerRadius: 4,
@@ -273,7 +343,9 @@ private extension SankeyDiagramStyle {
             linkOpacity: 0.16,
             nodePalette: [
                 SankeyPaletteColor(red: 0.20, green: 0.62, blue: 0.50),
-                SankeyPaletteColor(red: 0.20, green: 0.62, blue: 0.50),
+                showsIncomeSources
+                    ? SankeyPaletteColor(red: 0.20, green: 0.62, blue: 0.50)
+                    : SankeyPaletteColor(red: 0.88, green: 0.28, blue: 0.36),
                 SankeyPaletteColor(red: 0.88, green: 0.28, blue: 0.36),
                 SankeyPaletteColor(red: 0.88, green: 0.28, blue: 0.36)
             ]

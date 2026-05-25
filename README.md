@@ -9,7 +9,9 @@ The package owns the generic diagram model:
 - `SankeyDiagram`
 - `SankeyDiagramStyle`
 
-Your app owns its source models and maps them into nodes and links. The included cashflow playground shows one way to adapt income and expense data into a yearly cashflow diagram.
+Your app owns its source models and maps them into nodes and links. The included
+cashflow app playgrounds show supported ways to adapt income and expense data
+into yearly cashflow diagrams.
 
 ## Usage
 
@@ -38,9 +40,17 @@ SankeyDiagram(nodes: nodes, links: links)
     .frame(height: 420)
 ```
 
-## Cashflow Example
+## Cashflow Examples
 
-Open `Examples/CashflowSankeyExample.playground` in Xcode. It mirrors app-owned cashflow structs, then maps them into generic Sankey nodes and links.
+Open one of the SwiftPM-backed app playgrounds in Swift Playgrounds or Xcode:
+
+- `Examples/CashflowSankeyExample.swiftpm` starts with income sources expanded.
+- `Examples/CashflowCollapsedIncomeExample.swiftpm` starts with `Total Income`
+  collapsed on the far left and expands/collapses it when selected.
+
+Each playground depends on the public GitHub package URL, so
+`import SwiftSankeyDiagram` resolves when the example builds in Swift
+Playgrounds.
 
 The important boundary is that the package does not know about cashflow, expenses, categories, or any app storage. Those stay in the app. The package only renders nodes and links.
 
@@ -65,7 +75,12 @@ The diagram is a SwiftUI view, so apps can render it with platform APIs such as 
 ```bash
 swift test
 swift build
+bash scripts/check-swift-playgrounds-scenarios.sh
+bash scripts/check-swift-playgrounds-scenarios.sh --local-package
 ```
+
+Pull requests run the local-package scenario check as a `Supported scenarios`
+CI job so the Swift Playgrounds examples act as package integration fixtures.
 
 See [docs/SWIFT_SANKEY_DIAGRAM.md](docs/SWIFT_SANKEY_DIAGRAM.md) for package boundary guidance.
 

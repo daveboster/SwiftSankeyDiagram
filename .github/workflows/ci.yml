@@ -35,3 +35,21 @@ jobs:
 
       - name: Run package tests
         run: swift test
+
+  supported-scenarios:
+    name: Supported scenarios
+    runs-on: macos-26
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Show toolchain
+        run: |
+          xcode-select -p
+          xcodebuild -version
+          swift --version
+
+      - name: Build Swift Playgrounds scenarios
+        run: bash scripts/check-swift-playgrounds-scenarios.sh --local-package

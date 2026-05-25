@@ -38,9 +38,9 @@ The package exposes generic diagram APIs instead of depending on app types:
 - `SankeyDiagram` renders the nodes and links and can bind selected node state
   back to the host app.
 
-The cashflow playground example mirrors host-owned cashflow data to demonstrate
-the adapter boundary. It is intentionally example code, not package domain
-logic.
+The cashflow app playground scenarios mirror host-owned cashflow data to
+demonstrate the adapter boundary. They are intentionally example code, not
+package domain logic.
 
 ## Onboarding Docs
 
@@ -56,4 +56,10 @@ Use these checks when changing the package boundary:
 ```bash
 swift test
 swift build
+bash scripts/check-swift-playgrounds-scenarios.sh
+bash scripts/check-swift-playgrounds-scenarios.sh --local-package
 ```
+
+The local-package scenario check runs in CI as the `Supported scenarios` PR
+check so the Swift Playgrounds examples cover the current package checkout
+before merging to `main`.

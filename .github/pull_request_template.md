@@ -4,6 +4,7 @@
 ## Validation
 
 - [ ] `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift test`
+- [ ] `bash scripts/check-swift-playgrounds-scenarios.sh --local-package`
 
 ## Release Notes
 
