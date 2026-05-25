@@ -1,6 +1,8 @@
 .DS_Store
 .build/
+.swiftpm/
 DerivedData/
 Package.resolved
+Examples/*.playground/playground.xcworkspace/
 *.xcuserstate
 xcuserdata/
