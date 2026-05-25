@@ -79,6 +79,9 @@ bash scripts/check-swift-playgrounds-scenarios.sh
 bash scripts/check-swift-playgrounds-scenarios.sh --local-package
 ```
 
+Pull requests run the local-package scenario check as a `Supported scenarios`
+CI job so the Swift Playgrounds examples act as package integration fixtures.
+
 See [docs/SWIFT_SANKEY_DIAGRAM.md](docs/SWIFT_SANKEY_DIAGRAM.md) for package boundary guidance.
 
 ## Versioning

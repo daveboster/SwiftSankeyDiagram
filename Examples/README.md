@@ -29,3 +29,8 @@ the released public dependency:
 ```bash
 bash scripts/check-swift-playgrounds-scenarios.sh --local-package
 ```
+
+The local-package mode is intended for PR checks. It keeps each checked-in
+playground manifest pointed at the public GitHub package URL, then copies the
+scenario to a temporary directory and rewrites that copy to depend on the local
+checkout for integration validation.

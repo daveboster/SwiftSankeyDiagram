@@ -59,3 +59,7 @@ swift build
 bash scripts/check-swift-playgrounds-scenarios.sh
 bash scripts/check-swift-playgrounds-scenarios.sh --local-package
 ```
+
+The local-package scenario check runs in CI as the `Supported scenarios` PR
+check so the Swift Playgrounds examples cover the current package checkout
+before merging to `main`.
